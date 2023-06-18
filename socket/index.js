@@ -15,8 +15,8 @@ const addUser = (userId, socketId) => {
 }
 
 const removeUser = (socketId) => {
-    users.filter((user) => user.socketId !== socketId)
-    console.log('-users', users)
+  users.filter((user) => user.socketId !== socketId)
+  console.log('-users', users)
 }
 
 const getUser = (userId) => {
@@ -39,6 +39,10 @@ io.on('connection', (socket) => {
       senderId,
       text,
     })
+  })
+
+  socket.on('online', () => {
+    io.emit('getUsers', users)
   })
 
   // when disconnect
