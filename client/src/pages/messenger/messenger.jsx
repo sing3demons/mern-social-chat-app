@@ -14,7 +14,7 @@ export default function Messenger() {
   const [messages, setMessages] = useState([])
   const [newMessages, setNewMessages] = useState([])
   const [arrivalMessage, setArrivalMessage] = useState(null)
-  //   const [socket, setSocket] = useState(null)
+  const [onlineUsers, setOnlineUsers] = useState([])
   const socket = useRef()
 
   const { user } = useContext(AuthContext)
@@ -37,19 +37,11 @@ export default function Messenger() {
       setMessages((prev) => [...prev, arrivalMessage])
   }, [arrivalMessage, currentChat])
 
-  // useEffect(() => {
-  //   setSocket(io('ws://localhost:8900'))
-  // }, [])
-
-  //   useEffect(() => {
-  //     socket?.on('welcome', (message) => {
-  //       console.log('socket.id', message)
-  //     })
-  //   }, [socket])
-
   useEffect(() => {
     socket.current.emit('addUser', user._id)
     socket.current.on('getUsers', (users) => {
+      console.log('following', user.followings)
+      setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)))
       console.log('users', users)
     })
   }, [user])
@@ -159,7 +151,15 @@ export default function Messenger() {
         </div>
         <div className='chatOnline'>
           <div className='chatOnlineWrapper'>
-            <ChatOnline />
+            <h4
+              style={{
+                padding: '10px',
+                color: 'rgb(0, 0, 0, 0.1)',
+              }}
+            >
+              online
+            </h4>
+            <ChatOnline onlineUsers={onlineUsers} currentId={user._id} setCurrentChat={setCurrentChat} />
           </div>
         </div>
       </div>
