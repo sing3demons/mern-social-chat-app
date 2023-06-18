@@ -6,21 +6,59 @@ import Message from '../../components/message/Message.jsx'
 import ChatOnline from '../../components/chatOline/ChatOnline.jsx'
 import { AuthContext } from '../../context/AuthContext.js'
 import axios from 'axios'
+import { io } from 'socket.io-client'
 
 export default function Messenger() {
   const [conversations, setConversations] = useState([])
   const [currentChat, setCurrentChat] = useState(null)
   const [messages, setMessages] = useState([])
   const [newMessages, setNewMessages] = useState([])
+  const [arrivalMessage, setArrivalMessage] = useState(null)
+  //   const [socket, setSocket] = useState(null)
+  const socket = useRef()
 
   const { user } = useContext(AuthContext)
   const scrollRef = useRef()
 
   useEffect(() => {
+    socket.current = io('ws://localhost:8900')
+    socket.current.on('getMessage', (data) => {
+      setArrivalMessage({
+        sender: data.senderId,
+        text: data.text,
+        createdAt: Date.now(),
+      })
+    })
+  }, [])
+
+  useEffect(() => {
+    arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender) &&
+      setMessages((prev) => [...prev, arrivalMessage])
+  }, [arrivalMessage, currentChat])
+
+  // useEffect(() => {
+  //   setSocket(io('ws://localhost:8900'))
+  // }, [])
+
+  //   useEffect(() => {
+  //     socket?.on('welcome', (message) => {
+  //       console.log('socket.id', message)
+  //     })
+  //   }, [socket])
+
+  useEffect(() => {
+    socket.current.emit('addUser', user._id)
+    socket.current.on('getUsers', (users) => {
+      console.log('users', users)
+    })
+  }, [user])
+
+  useEffect(() => {
     const getConversations = async () => {
       try {
         const res = await axios.get('/conversations/' + user._id)
-        console.log(res)
+        // console.log(res)
         setConversations(res.data)
       } catch (err) {
         console.log(err)
@@ -36,9 +74,9 @@ export default function Messenger() {
           const res = await axios.get('/messages/' + currentChat?._id)
           setMessages(res.data)
 
-          console.log(res.data)
+          //   console.log(res.data)
         }
-        console.log('currentChat', currentChat)
+        // console.log('currentChat', currentChat)
       } catch (err) {
         console.log(err)
       }
@@ -53,6 +91,14 @@ export default function Messenger() {
       text: newMessages,
       conversationId: currentChat._id,
     }
+
+    const receiverId = currentChat.members.find((member) => member !== user._id)
+
+    socket.current.emit('sendMessage', {
+      senderId: user._id,
+      receiverId,
+      text: newMessages,
+    })
 
     try {
       const { data } = await axios.post('/messages', message)
