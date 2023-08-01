@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:6.0.3
+    container_name: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=p@ssw0rd2023
+      - MONGO_INITDB_DATABASE=node-rest-api
+    ports:
+      - 27017:27017
+    # volumes:
+    #   - ./_data:/data/db
+  backend:
+    build: ./api
+    container_name: backend
+    restart: always
+    ports:
+      - 8800:8800
+    environment:
+      - MONGO_URL=mongodb://root:p%40ssw0rd2023@mongo:27017/node-rest-api?authSource=admin
+    volumes:
+      - ./public:/app/backend/public
+    depends_on:
+      - mongo

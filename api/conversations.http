@@ -1,0 +1,23 @@
+POST /api/auth/login HTTP/1.1
+Host: localhost:8800
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInJvbGUiOiJtZW1iZXIiLCJpc3N1ZXIiOiJzaW5nM2RlbW9ucyIsImlhdCI6MTY4MDk2NTI5NCwiZXhwIjoxNjgwOTY4ODk0fQ.FZDpeBJ8TiFKA5DlVU6MN5D90FctRGgQwFSfD9KPlnA
+Content-Length: 88
+
+{
+    "username":"kp.sing",
+    "email": "kp.sing@dev.com",
+    "password": "12345678"
+}
+
+####
+POST /api/conversations HTTP/1.1
+Host: localhost:8800
+Content-Type: application/json
+Authorization: Bearer 
+Content-Length: 92
+
+{
+    "senderId": "64c8e07358e7aa34b3a39f80",
+    "receiverId": "64c8e0d858e7aa7c7aa39f87"
+}
